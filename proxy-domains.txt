@@ -9,6 +9,14 @@ openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
 openai.com.cdn.cloudflare.net
 openaiapi-site.azureedge.net
 openaicom.imgix.net
+chat.comopenai.com.cdn.cloudflare.net
+openaicomproductionae4b.blob.core.windows.net
+production-openaicom-storage.azureedge.net
+byteoversea.com
+ibytedtos.com
+ipstatp.com
+muscdn.com
+musical.ly
 deepmind.com
 deepmind.google
 geller-pa.googleapis.com
