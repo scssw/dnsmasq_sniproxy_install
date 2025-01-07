@@ -1,4 +1,3 @@
-# Netflix 专用 DNS
 netflix.ca
 netflix.com
 netflix.net
@@ -22,7 +21,6 @@ netflixdnstest8.com
 netflixdnstest9.com
 cinemax.com
 forthethrone.com
-# HBO DNS解锁
 hbo.com
 hboasia.com
 hbogo.com
@@ -33,19 +31,15 @@ hbonow.com
 maxgo.com
 max.com
 discomax.com
-# Hoy DNS解锁
 hoy.tv
-# Bahamut Anime解锁
 bahamut.com.tw
 gamer.com.tw
 gamer-cds.cdn.hinet.net
 gamer2-cds.cdn.hinet.net
-# Disney DNS解锁
 disney.com
 disneyjunior.com
 disneyplus.com
 bamgrid.com
-# ChatGPT DNS解锁
 openai.com
 chatgpt.com
 chat.com
@@ -62,7 +56,6 @@ ipstatp.com
 muscdn.com
 musical.ly
 sora.com
-# tiktok DNS解锁
 tik-tokapi.com
 tiktok.com
 tiktokcdn.com
@@ -71,7 +64,6 @@ ggpht.cn
 ggpht.com
 googlevideo.com
 gvt2.com
-# Youtube DNS解锁
 withyoutube.com
 youtube-nocookie.com
 youtube.com
@@ -83,7 +75,6 @@ youtubei.googleapis.com
 youtubekids.com
 youtubemobilesupport.com
 ytimg.com
-# Spotify DNS解锁
 audio4-ak-spotify-com.akamaized.net
 dn-spotify-experiments.conductrics.com
 heads-ak-spotify-com.akamaized.net
@@ -109,19 +100,16 @@ spotifyjobs.com
 spotifynewsroom.jp
 spotilocal.com
 tospotify.com
-# Hotstar DNS解锁
 hotstar-cdn.net
 hotstar-labs.com
 hotstar.com
 hotstarext.com
 hsprepack.akamaized.net
 js-agent.newrelic.com
-# MyTVSuper DNS解锁
 mytvsuper.com
 mytvsuperlimited.hb.omtrdc.net
 mytvsuperlimited.sc.omtrdc.net
 tvb.com
-# Gemini DNS解锁
 gemini.google.com
 proactivebackend-pa.googleapis.com
 alkalimakersuite-pa.clients6.google.com
@@ -140,7 +128,6 @@ broadcast.chat.bilibili.com
 upos-hz-mirrorakam.akamaized.net
 bangumi.bilibili.com
 manga.bilibili.com
-# VIU.TV DNS解锁 HK
 viu.now.com
 viu.tv
 cognito-identity.us-east-1.amazonaws.com
@@ -150,7 +137,6 @@ dfp6rglgjqszk.cloudfront.net
 d3o7oi00quuwqu.cloudfront.net
 mobileanalytics.us-east-1.amazonaws.com
 viu.com
-# DAZN DNS解锁 SG
 dazn-api.com
 dazn.com
 dazndn.com
@@ -167,12 +153,9 @@ intercom.io
 logx.optimizely.com
 s.yimg.jp
 sentry.io
-# Now E DNS解锁 HK
 nowe.com
 nowestatic.com
 now.com
-
-# > NBA TV
 nba.com
 neulion-a.akamaihd.net
 nlnbamdnyc-a.akamaihd.net
@@ -187,8 +170,6 @@ neulion.com
 nbaprop.tt.omtrdc.net
 lion-nba-msl.akamaized.net
 nbanlds19vod.akamaized.net
-
-# > Claude 解锁 SG
 cdn.usefathom.com
 anthropic.com
 claude.ai
