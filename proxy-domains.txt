@@ -95,7 +95,7 @@ spotify-everywhere.com
 spotify.com
 spotify.design
 spotifycdn.com
-spotifycdn.net,Spotify
+spotifycdn.net
 spotifycharts.com
 spotifycodes.com
 spotifyforbrands.com
@@ -118,19 +118,6 @@ proactivebackend-pa.googleapis.com
 alkalimakersuite-pa.clients6.google.com
 aistudio.google.com
 generativelanguage.googleapis.com
-# bilibili DNS解锁 HK
-bilibili.tv
-www.bilibili.com
-cm.bilibili.com
-api.bilibili.com
-api.vc.bilibili.com
-api.live.bilibili.com
-passport.bilibili.com
-data.bilibili.com
-broadcast.chat.bilibili.com
-upos-hz-mirrorakam.akamaized.net
-bangumi.bilibili.com
-manga.bilibili.com
 viu.now.com
 viu.tv
 cognito-identity.us-east-1.amazonaws.com
