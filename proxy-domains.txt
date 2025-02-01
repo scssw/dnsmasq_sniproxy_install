@@ -1,15 +1,15 @@
 netflix.ca
-netflix.com
-netflix.net
 netflixinvestor.com
 netflixtechblog.com
+netflix.com.edgesuite.net
+netflix.com
+netflix.net
 nflxext.com
 nflximg.com
 nflximg.net
-nflxsearch.net
 nflxso.net
 nflxvideo.net
-netflixdnstest0.com
+nflxsearch.net
 netflixdnstest1.com
 netflixdnstest2.com
 netflixdnstest3.com
@@ -19,6 +19,7 @@ netflixdnstest6.com
 netflixdnstest7.com
 netflixdnstest8.com
 netflixdnstest9.com
+netflixdnstest10.com
 cinemax.com
 forthethrone.com
 phncdn.com
