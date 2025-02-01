@@ -10,6 +10,7 @@ nflximg.net
 nflxso.net
 nflxvideo.net
 nflxsearch.net
+netflixdnstest0.com
 netflixdnstest1.com
 netflixdnstest2.com
 netflixdnstest3.com
