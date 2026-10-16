@@ -201,7 +201,7 @@ firebaselogging-pa.googleapis.com
 fonts.googleapis.com
 fonts.gstatic.com
 lh3.googleusercontent.com
-googletagmanager.com.com
+googletagmanager.com
 gstatic.com
 accounts.google.com
 googleapis.com
