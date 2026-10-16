@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+DOMAIN_FILE="${ROOT_DIR}/proxy-domains.txt"
+DNS_TEMPLATE="${ROOT_DIR}/dnsmasq.conf"
+SNI_TEMPLATE="${ROOT_DIR}/sniproxy.conf"
+DNS_CONFIG="${DNS_CONFIG:-/etc/dnsmasq.d/custom_netflix.conf}"
+SNI_CONFIG="${SNI_CONFIG:-/etc/sniproxy.conf}"
+
+usage() {
+    echo "Usage: $0 check | update [proxy-ipv4]" >&2
+    exit 2
+}
+
+[[ $# -ge 1 && $# -le 2 ]] || usage
+ACTION="$1"
+[[ "$ACTION" == check || "$ACTION" == update ]] || usage
+[[ -r "$DOMAIN_FILE" && -r "$DNS_TEMPLATE" && -r "$SNI_TEMPLATE" ]] || {
+    echo "Required repository files are missing or unreadable." >&2
+    exit 1
+}
+
+mapfile -t DOMAINS < <(sed -e 's/[[:space:]]*#.*$//' -e '/^[[:space:]]*$/d' "$DOMAIN_FILE" | tr '[:upper:]' '[:lower:]' | sort -u)
+((${#DOMAINS[@]} > 0)) || { echo "Domain list is empty." >&2; exit 1; }
+
+for domain in "${DOMAINS[@]}"; do
+    [[ "$domain" =~ ^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$ ]] || {
+        echo "Invalid domain in ${DOMAIN_FILE}: ${domain}" >&2
+        exit 1
+    }
+done
+
+valid_ipv4() {
+    local ip="$1" octet
+    [[ "$ip" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || return 1
+    IFS=. read -r -a octets <<< "$ip"
+    for octet in "${octets[@]}"; do
+        ((10#$octet <= 255)) || return 1
+    done
+}
+
+if [[ "$ACTION" == check ]]; then
+    [[ -r "$DNS_CONFIG" && -r "$SNI_CONFIG" ]] || {
+        echo "Installed configs are missing: ${DNS_CONFIG} and/or ${SNI_CONFIG}" >&2
+        exit 1
+    }
+    IP="${2:-$(sed -n 's#^[[:space:]]*address=/[^/]\+/\([0-9.]*\)[[:space:]]*$#\1#p' "$DNS_CONFIG" | head -n1)}"
+    valid_ipv4 "$IP" || {
+        echo "Could not determine the proxy IPv4 from ${DNS_CONFIG}." >&2
+        exit 1
+    }
+    failures=0
+    for domain in "${DOMAINS[@]}"; do
+        escaped="${domain//./\\.}"
+        grep -Fqx "address=/${domain}/${IP}" "$DNS_CONFIG" || {
+            echo "DNS rule missing: ${domain} -> ${IP}"
+            failures=1
+        }
+        grep -Fqx "    .*${escaped}\$ *" "$SNI_CONFIG" || {
+            echo "SNI rule missing: ${domain}"
+            failures=1
+        }
+    done
+    if ((failures)); then
+        exit 1
+    fi
+    echo "OK: all ${#DOMAINS[@]} domains have DNS and SNI rules (${IP})."
+    exit 0
+fi
+
+[[ $EUID -eq 0 ]] || { echo "Run update with sudo/root." >&2; exit 1; }
+IP="${2:-$(sed -n 's#^[[:space:]]*address=/[^/]\+/\([0-9.]*\)[[:space:]]*$#\1#p' "$DNS_CONFIG" 2>/dev/null | head -n1)}"
+valid_ipv4 "$IP" || {
+    echo "Pass the proxy server IPv4: $0 update 203.0.113.10" >&2
+    exit 1
+}
+
+DNS_DIR="$(dirname -- "$DNS_CONFIG")"
+SNI_DIR="$(dirname -- "$SNI_CONFIG")"
+mkdir -p "$DNS_DIR" "$SNI_DIR"
+STAMP="$(date +%Y%m%d%H%M%S)"
+[[ ! -e "$DNS_CONFIG" ]] || cp -a "$DNS_CONFIG" "${DNS_CONFIG}.bak.${STAMP}"
+[[ ! -e "$SNI_CONFIG" ]] || cp -a "$SNI_CONFIG" "${SNI_CONFIG}.bak.${STAMP}"
+DNS_TMP="$(mktemp "${DNS_DIR}/.custom_netflix.conf.XXXXXX")"
+SNI_TMP="$(mktemp "${SNI_DIR}/.sniproxy.conf.XXXXXX")"
+trap 'rm -f "${DNS_TMP:-}" "${SNI_TMP:-}"' EXIT
+cat "$DNS_TEMPLATE" > "$DNS_TMP"
+for domain in "${DOMAINS[@]}"; do
+    printf 'address=/%s/%s\n' "$domain" "$IP" >> "$DNS_TMP"
+done
+awk -v domains_file="$DOMAIN_FILE" '
+    BEGIN {
+        while ((getline domain < domains_file) > 0) {
+            sub(/[[:space:]]*#.*/, "", domain)
+            domain = tolower(domain)
+            if (domain != "") {
+                gsub(/\./, "\\\\.", domain)
+                generated[".*" domain "$"] = 1
+            }
+        }
+        close(domains_file)
+    }
+    /^table[[:space:]]*\{/ {
+        print
+        while ((getline line) > 0 && line !~ /^[[:space:]]*\}/) {}
+        for (domain in generated) print "    " domain " *"
+        print "}"
+        next
+    }
+    { print }
+' "$SNI_TEMPLATE" > "$SNI_TMP"
+chmod 0644 "$DNS_TMP" "$SNI_TMP"
+if command -v dnsmasq >/dev/null 2>&1; then
+    dnsmasq --test --conf-file="$DNS_TMP"
+fi
+mv -f "$DNS_TMP" "$DNS_CONFIG"
+mv -f "$SNI_TMP" "$SNI_CONFIG"
+trap - EXIT
+systemctl restart dnsmasq
+systemctl restart sniproxy
+echo "Updated ${#DOMAINS[@]} DNS/SNI domain rules for ${IP}. Backups use .bak.${STAMP}."

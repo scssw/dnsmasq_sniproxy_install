@@ -110,11 +110,13 @@ check_ip(){
 download(){
     local filename=${1}
     echo -e "[${green}Info${plain}] ${filename} download configuration now..."
-    wget --no-check-certificate -q -t3 -T60 -O ${1} ${2}
-    if [ $? -ne 0 ]; then
+    local tmpfile="${1}.tmp.$$"
+    if ! wget -q -t3 -T60 -O "$tmpfile" "$2"; then
+        rm -f "$tmpfile"
         echo -e "[${red}Error${plain}] Download ${filename} failed."
         exit 1
     fi
+    mv -f "$tmpfile" "$1"
 }
 
 error_detect_depends(){
@@ -548,7 +550,10 @@ undnsmasq(){
             echo -e "[${red}Error${plain}] Failed to uninstall ${red}dnsmasq${plain}"
         fi
     fi
-    rm -rf /etc/dnsmasq.d/custom_netflix.conf
+    if [ -f /etc/dnsmasq.d/custom_netflix.conf ]; then
+        cp -a /etc/dnsmasq.d/custom_netflix.conf "/etc/dnsmasq.d/custom_netflix.conf.uninstall.$(date +%Y%m%d%H%M%S)"
+        rm -f /etc/dnsmasq.d/custom_netflix.conf
+    fi
     echo -e "[${green}Info${plain}] services uninstall dnsmasq complete..."
 }
 
@@ -578,7 +583,10 @@ unsniproxy(){
             echo -e "[${red}Error${plain}] Failed to uninstall ${red}sniproxy${plain}"
         fi
     fi
-    rm -rf /etc/sniproxy.conf
+    if [ -f /etc/sniproxy.conf ]; then
+        cp -a /etc/sniproxy.conf "/etc/sniproxy.conf.uninstall.$(date +%Y%m%d%H%M%S)"
+        rm -f /etc/sniproxy.conf
+    fi
     echo -e "[${green}Info${plain}] services uninstall sniproxy complete..."
 }
 

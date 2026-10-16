@@ -6,7 +6,7 @@
 
 * 用途：让无法观看流媒体的VPS可以观看（前提：VPS中要有一个是能观看流媒体的）。
 
-* 特性：脚本解锁`CHATGPT和Gemini`[点击查看解锁域名](https://github.com/nanci0406/dnsmasq_sniproxy_install/blob/master/proxy-domains.txt)，如需解锁其他流媒体请编辑文件`/etc/dnsmasq.d/custom_netflix.conf`和`/etc/sniproxy.conf`
+* 特性：脚本解锁`CHATGPT和Gemini`[点击查看解锁域名](https://github.com/scssw/dnsmasq_sniproxy_install/blob/master/proxy-domains.txt)。域名清单是 dnsmasq 与 sniproxy 规则的唯一来源，新增域名后使用同步工具更新两边配置。
 
 * 脚本支持系统：CentOS6+, Debian8+, Ubuntu16+
     * 理论上支持上述系统及不限制虚拟化类型，如有问题请反馈
@@ -28,18 +28,29 @@
 
 ### 快速安装（推荐）：
 ``` Bash
-wget --no-check-certificate -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/nanci0406/dnsmasq_sniproxy_install/master/dnsmasq_sniproxy.sh && bash dnsmasq_sniproxy.sh -f
+wget -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/dnsmasq_sniproxy.sh && bash dnsmasq_sniproxy.sh -f
 ```
 
 ### 普通安装：
 ``` Bash
-wget --no-check-certificate -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/nanci0406/dnsmasq_sniproxy_install/master/dnsmasq_sniproxy.sh && bash dnsmasq_sniproxy.sh -i
+wget -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/dnsmasq_sniproxy.sh && bash dnsmasq_sniproxy.sh -i
 ```
 
 ### 卸载方法：
 ``` Bash
-wget --no-check-certificate -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/nanci0406/dnsmasq_sniproxy_install/master/dnsmasq_sniproxy.sh && bash dnsmasq_sniproxy.sh -u
+wget -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/dnsmasq_sniproxy.sh && bash dnsmasq_sniproxy.sh -u
 ```
+
+### 配置检查与同步
+
+域名清单中每个域名都会同时生成 dnsmasq 地址规则和 sniproxy SNI 转发规则。新增或修改 `proxy-domains.txt` 后，在仓库目录运行：
+
+```bash
+sudo ./sync-proxy-config.sh check
+sudo ./sync-proxy-config.sh update
+```
+
+`check` 只报告 DNS 与 SNI 规则缺失，不改配置。`update` 会先备份两个配置文件，再从仓库模板和域名清单重新生成规则、检查 dnsmasq 配置并重启两个服务。它会用模板重建配置文件，因此请先把自定义选项加到仓库模板；也可传入代理服务器 IPv4：`sudo ./sync-proxy-config.sh update 203.0.113.10`。
 
 ### 使用方法：
 将代理主机的DNS地址修改为安装过dnsmasq的主机IP即可，如果不可用，尝试配置文件中仅保留一个DNS地址。

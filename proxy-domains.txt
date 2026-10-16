@@ -183,6 +183,7 @@ lion-nba-msl.akamaized.net
 nbanlds19vod.akamaized.net
 cdn.usefathom.com
 gemini.google.com
+google.com
 proactivebackend-pa.googleapis.com
 aisandbox-pa.googleapis.com
 robinfrontend-pa.googleapis.com
