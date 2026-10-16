@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]-}"
+if [[ -n "$SCRIPT_SOURCE" && "$SCRIPT_SOURCE" != /dev/fd/* ]]; then
+    ROOT_DIR="$(cd -- "$(dirname -- "$SCRIPT_SOURCE")" && pwd)"
+else
+    ROOT_DIR="$PWD"
+fi
 DOMAIN_FILE="${ROOT_DIR}/proxy-domains.txt"
 DNS_TEMPLATE="${ROOT_DIR}/dnsmasq.conf"
 SNI_TEMPLATE="${ROOT_DIR}/sniproxy.conf"
