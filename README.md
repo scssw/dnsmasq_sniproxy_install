@@ -41,24 +41,29 @@ wget -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/scssw/dnsmasq_snip
 wget -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/dnsmasq_sniproxy.sh && bash dnsmasq_sniproxy.sh -u
 ```
 
-### 配置检查与同步（SNIProxy 规则更新）
+### 配置检查与同步（Dnsmasq + SNIProxy 域名双向同步）
 
-当 `proxy-domains.txt` 域名清单新增或更新后，直接同步并更新 `/etc/sniproxy.conf` 配置，无需重新安装服务：
+当 `proxy-domains.txt` 域名清单新增或更新域名后，直接运行同步脚本即可一键刷新 `/etc/dnsmasq.d/custom_netflix.conf`（DNS 劫持）与 `/etc/sniproxy.conf`（SNI 反代转发），确保两边规则完全一致，无需重新安装：
 
 ```bash
-# 检查当前 /etc/sniproxy.conf 中的域名规则是否完整
+# 检查当前配置中的域名规则是否完整
 curl -fsSL https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/sync-proxy-config.sh | bash -s -- check
 
-# 升级 /etc/sniproxy.conf 并重启 sniproxy 服务（默认仅升级 sniproxy，无需传参）
+# 一键同步两边配置并重载服务（自动获取/复用 IP）
 curl -fsSL https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/sync-proxy-config.sh | sudo bash -s -- update
 ```
 
-- **默认行为**：`update` 会自动备份 `/etc/sniproxy.conf`，将域名清单的完整规则替换至 `/etc/sniproxy.conf` 的 `table` 块中，并重启 `sniproxy` 服务（无需提供代理 IPv4 参数，不操作/不重启 dnsmasq，避免因 53 端口冲突或未运行导致报错中断）。
-- **扩展用法**：若需同步 Dnsmasq 或同时更新两边配置，可显式指定目标及代理服务器 IPv4：
+- **默认行为**：`update` 会自动备份两边已有配置，将域名清单的完整域名同步写入 `/etc/dnsmasq.d/custom_netflix.conf` 和 `/etc/sniproxy.conf`，并重载相关服务。
+  - **IP 自动识别**：脚本会优先复用已有 `custom_netflix.conf` 中的代理 IP，若未找到则自动探测公网 IP，通常无需手动输入 IP。
+  - **手动传入 IP**（可选）：也可显式指定解锁机的公网 IPv4 地址：
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/sync-proxy-config.sh | sudo bash -s -- update 203.0.113.10
+    ```
+- **单项更新**（可选）：如果你的 DNS 和 SNI 分布在不同服务器上，也可以只单独更新其中一项：
   ```bash
-  # 同时更新 sniproxy 与 dnsmasq
-  sudo ./sync-proxy-config.sh update all 203.0.113.10
-  # 仅更新 dnsmasq
+  # 仅更新 SNIProxy 反代规则
+  sudo ./sync-proxy-config.sh update sniproxy
+  # 仅更新 Dnsmasq 解析规则
   sudo ./sync-proxy-config.sh update dnsmasq 203.0.113.10
   ```
 
