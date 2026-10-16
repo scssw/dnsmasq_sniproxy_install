@@ -183,7 +183,6 @@ lion-nba-msl.akamaized.net
 nbanlds19vod.akamaized.net
 cdn.usefathom.com
 gemini.google.com
-google.com
 proactivebackend-pa.googleapis.com
 aisandbox-pa.googleapis.com
 robinfrontend-pa.googleapis.com
@@ -202,9 +201,14 @@ firebaselogging-pa.googleapis.com
 fonts.googleapis.com
 fonts.gstatic.com
 lh3.googleusercontent.com
+googletagmanager.com.com
 gstatic.com
 accounts.google.com
 googleapis.com
+google.com
+gemini.google.com
+www.google.com
+proactivebackend-pa.googleapis.com
 cognito-identity.us-east-1.amazonaws.com
 d1k2us671qcoau.cloudfront.net
 d2anahhhmp1ffz.cloudfront.net
