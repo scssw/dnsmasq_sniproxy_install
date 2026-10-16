@@ -43,14 +43,14 @@ wget -O dnsmasq_sniproxy.sh https://raw.githubusercontent.com/scssw/dnsmasq_snip
 
 ### 配置检查与同步
 
-域名清单中每个域名都会同时生成 dnsmasq 地址规则和 sniproxy SNI 转发规则。新增或修改 `proxy-domains.txt` 后，在仓库目录运行：
+域名清单中每个域名都会同时生成 dnsmasq 地址规则和 sniproxy SNI 转发规则。已安装的机器只需要刷新规则，无需先卸载或重新安装程序：
 
 ```bash
-sudo ./sync-proxy-config.sh check
-sudo ./sync-proxy-config.sh update
+curl -fsSL https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/sync-proxy-config.sh | bash -s -- check
+curl -fsSL https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/sync-proxy-config.sh | sudo bash -s -- update
 ```
 
-`check` 只报告 DNS 与 SNI 规则缺失，不改配置。`update` 会先备份两个配置文件，再从仓库模板和域名清单重新生成规则、检查 dnsmasq 配置并重启两个服务。它会用模板重建配置文件，因此请先把自定义选项加到仓库模板；也可传入代理服务器 IPv4：`sudo ./sync-proxy-config.sh update 203.0.113.10`。
+`check` 只报告 DNS 与 SNI 规则缺失，不改配置。`update` 会先备份两个配置文件，再从仓库模板和域名清单重新生成规则、检查 dnsmasq 配置并重启两个服务。它会用模板重建配置文件，因此请先把自定义选项加到仓库模板；也可传入代理服务器 IPv4：`curl -fsSL https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master/sync-proxy-config.sh | sudo bash -s -- update 203.0.113.10`。在仓库目录运行时也可以使用 `sudo ./sync-proxy-config.sh update`。
 
 ### 使用方法：
 将代理主机的DNS地址修改为安装过dnsmasq的主机IP即可，如果不可用，尝试配置文件中仅保留一个DNS地址。

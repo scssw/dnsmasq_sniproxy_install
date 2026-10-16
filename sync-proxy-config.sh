@@ -7,6 +7,38 @@ DNS_TEMPLATE="${ROOT_DIR}/dnsmasq.conf"
 SNI_TEMPLATE="${ROOT_DIR}/sniproxy.conf"
 DNS_CONFIG="${DNS_CONFIG:-/etc/dnsmasq.d/custom_netflix.conf}"
 SNI_CONFIG="${SNI_CONFIG:-/etc/sniproxy.conf}"
+STAGE_DIR=""
+DNS_TMP=""
+SNI_TMP=""
+
+cleanup() {
+    [[ -z "$DNS_TMP" ]] || rm -f "$DNS_TMP"
+    [[ -z "$SNI_TMP" ]] || rm -f "$SNI_TMP"
+    [[ -z "$STAGE_DIR" ]] || rm -rf "$STAGE_DIR"
+}
+trap cleanup EXIT
+
+if [[ ! -r "$DOMAIN_FILE" || ! -r "$DNS_TEMPLATE" || ! -r "$SNI_TEMPLATE" ]]; then
+    STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dnsmasq-sniproxy.XXXXXX")"
+    RAW_BASE="https://raw.githubusercontent.com/scssw/dnsmasq_sniproxy_install/master"
+    fetch_file() {
+        local url="$1" output="$2"
+        if command -v curl >/dev/null 2>&1; then
+            curl --fail --location --silent --show-error "$url" -o "$output"
+        elif command -v wget >/dev/null 2>&1; then
+            wget -q -O "$output" "$url"
+        else
+            echo "Install curl or wget to fetch project configuration." >&2
+            return 1
+        fi
+    }
+    fetch_file "${RAW_BASE}/proxy-domains.txt" "${STAGE_DIR}/proxy-domains.txt"
+    fetch_file "${RAW_BASE}/dnsmasq.conf" "${STAGE_DIR}/dnsmasq.conf"
+    fetch_file "${RAW_BASE}/sniproxy.conf" "${STAGE_DIR}/sniproxy.conf"
+    DOMAIN_FILE="${STAGE_DIR}/proxy-domains.txt"
+    DNS_TEMPLATE="${STAGE_DIR}/dnsmasq.conf"
+    SNI_TEMPLATE="${STAGE_DIR}/sniproxy.conf"
+fi
 
 usage() {
     echo "Usage: $0 check | update [proxy-ipv4]" >&2
@@ -84,7 +116,6 @@ STAMP="$(date +%Y%m%d%H%M%S)"
 [[ ! -e "$SNI_CONFIG" ]] || cp -a "$SNI_CONFIG" "${SNI_CONFIG}.bak.${STAMP}"
 DNS_TMP="$(mktemp "${DNS_DIR}/.custom_netflix.conf.XXXXXX")"
 SNI_TMP="$(mktemp "${SNI_DIR}/.sniproxy.conf.XXXXXX")"
-trap 'rm -f "${DNS_TMP:-}" "${SNI_TMP:-}"' EXIT
 cat "$DNS_TEMPLATE" > "$DNS_TMP"
 for domain in "${DOMAINS[@]}"; do
     printf 'address=/%s/%s\n' "$domain" "$IP" >> "$DNS_TMP"
@@ -116,7 +147,8 @@ if command -v dnsmasq >/dev/null 2>&1; then
 fi
 mv -f "$DNS_TMP" "$DNS_CONFIG"
 mv -f "$SNI_TMP" "$SNI_CONFIG"
-trap - EXIT
+DNS_TMP=""
+SNI_TMP=""
 systemctl restart dnsmasq
 systemctl restart sniproxy
 echo "Updated ${#DOMAINS[@]} DNS/SNI domain rules for ${IP}. Backups use .bak.${STAMP}."
